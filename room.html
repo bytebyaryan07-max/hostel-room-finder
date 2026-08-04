@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel & Room Finder - Premium Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --charcoal: #1a1a2e;
+            --gold: #f4c542;
+            --gold-hover: #e0b435;
+            --terracotta: #c84b31;
+            --cream: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6c757d;
+            --border-color: #e9ecef;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+            --radius: 16px;
+            --radius-sm: 12px;
+        }
+        [data-theme="dark"] {
+            --charcoal: #0f0f1a;
+            --cream: #12121f;
+            --card-bg: #1a1a2e;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --border-color: #2d2d44;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4, .brand-font { font-family: 'Playfair Display', serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-fade { animation: fadeIn 0.6s ease-out forwards; }
+        .animate-slide { animation: slideInRight 0.5s ease-out forwards; }
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+        #gateway {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        #gateway::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(244,197,66,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s ease-in-out infinite;
+        }
+        .gateway-content { position: relative; z-index: 2; }
+        .role-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 48px 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-align: center;
+            color: white;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+        .role-card:hover::before { transform: scaleX(1); }
+        .role-card:hover {
+            transform: translateY(-12px);
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(244, 197, 66, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .role-icon {
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, var(--gold), #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            display: inline-block;
+        }
+        .main-nav {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.7) !important;
+            font-weight: 500;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.3s;
+            margin: 0 4px;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--gold) !important;
+            background: rgba(244, 197, 66, 0.1);
+        }
+        .view-section { display: none; min-height: 100vh; }
+        .active-view { display: block; animation: fadeIn 0.5s ease-out; }
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(244, 197, 66, 0.2);
+        }
+        .card-img-wrapper { position: relative; overflow: hidden; }
+        .card-img-top { transition: transform 0.6s; object-fit: cover; }
+        .card:hover .card-img-top { transform: scale(1.08); }
+        .card-badge {
+            position: absolute;
+            top: 16px; left: 16px;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+        .wishlist-btn {
+            position: absolute;
+            top: 16px; right: 16px;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .wishlist-btn:hover { transform: scale(1.1); }
+        .wishlist-btn.active { background: var(--danger); color: white; }
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold), var(--gold-hover));
+            color: var(--charcoal);
+            font-weight: 600;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(244, 197, 66, 0.3);
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(244, 197, 66, 0.4);
+            color: var(--charcoal);
+        }
+        .btn-terracotta {
+            background: linear-gradient(135deg, var(--terracotta), #a03d2a);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-terracotta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(200, 75, 49, 0.3);
+            color: white;
+        }
+        .btn-outline-gold {
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            background: transparent;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-outline-gold:hover {
+            background: var(--gold);
+            color: var(--charcoal);
+            transform: translateY(-2px);
+        }
+        .search-hero {
+            background: linear-gradient(rgba(26,26,46,0.85), rgba(26,26,46,0.9)), url('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 100px 0;
+            position: relative;
+        }
+        .search-box {
+            background: white;
+            border-radius: var(--radius);
+            padding: 8px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .search-input {
+            border: none;
+            padding: 16px 20px;
+            font-size: 1rem;
+            flex: 1;
+            outline: none;
+            background: transparent;
+        }
+        .search-input:focus { box-shadow: none; }
+        .filter-chip {
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .filter-chip:hover, .filter-chip.active {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--charcoal);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(244,197,66,0.3);
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(244, 197, 66, 0.2);
+        }
+        .stat-icon {
+            width: 56px; height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        .custom-table {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .custom-table thead th {
+            background: var(--cream);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            padding: 16px 24px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .custom-table tbody td {
+            padding: 20px 24px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .custom-table tbody tr:hover { background: rgba(244, 197, 66, 0.02); }
+        .modal-content {
+            border: none;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header { border-bottom: 1px solid var(--border-color); padding: 24px; }
+        .modal-body { padding: 24px; }
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(244, 197, 66, 0.1);
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .amenity-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(244, 197, 66, 0.1);
+            border: 1px solid rgba(244, 197, 66, 0.2);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .toast-container { z-index: 1060; }
+        .custom-toast {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            padding: 16px 24px;
+            min-width: 300px;
+        }
+        .stars { color: var(--gold); font-size: 0.9rem; }
+        .stars .bi-star-fill { margin-right: 2px; }
+        .price-tag {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--terracotta);
+        }
+        .price-tag small {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        .empty-state { text-align: center; padding: 80px 20px; }
+        .empty-state i { font-size: 4rem; color: var(--border-color); margin-bottom: 24px; }
+        .theme-toggle {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .owner-prop-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        .owner-prop-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: rgba(244, 197, 66, 0.2);
+        }
+        .status-indicator {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-live { background: var(--success); box-shadow: 0 0 8px rgba(40, 167, 69, 0.4); }
+        .status-pending { background: var(--warning); box-shadow: 0 0 8px rgba(255, 193, 7, 0.4); }
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+        .tab-btn:hover { color: var(--gold); }
+        .img-upload-preview {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: var(--cream);
+        }
+        .img-upload-preview:hover {
+            border-color: var(--gold);
+            background: rgba(244, 197, 66, 0.05);
+        }
+        .img-upload-preview.has-image {
+            border-style: solid;
+            border-color: var(--gold);
+        }
+        @media (max-width: 768px) {
+            .search-hero { padding: 60px 0; }
+            .role-card { padding: 32px 24px; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+<!-- ================= 1. LOGIN / ROLE GATEWAY ================= -->
+<section id="gateway" class="view-section active-view">
+    <div class="gateway-content">
+        <div class="container">
+            <div class="text-center mb-5 text-white">
+                <div class="animate-fade">
+                    <i class="bi bi-house-heart-fill" style="font-size: 4rem; color: var(--gold);"></i>
+                    <h1 class="display-3 fw-bold mt-4 mb-3">Hostel & Room Finder</h1>
+                    <p class="lead opacity-75 mb-2">Your premium gateway to student accommodation</p>
+                    <p class="small opacity-50">Select your portal to continue</p>
+                </div>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4 delay-1 animate-fade">
+                    <div class="role-card" onclick="loginAs('student')">
+                        <i class="bi bi-mortarboard role-icon"></i>
+                        <h3 class="h4 mb-3">I am a Student</h3>
+                        <p class="small opacity-50 mb-4">Discover, compare, and secure your ideal living space near campus.</p>
+                        <button class="btn btn-outline-gold w-100">Enter Student Portal</button>
+                    </div>
+                </div>
+                <div class="col-md-4 delay-2 animate-fade">
+                    <div class="role-card" onclick="loginAs('owner')">
+                        <i class="bi bi-house-check role-icon"></i>
+                        <h3 class="h4 mb-3">I am an Owner</h3>
+                        <p class="small opacity-50 mb-4">List properties, manage inquiries, and grow your rental business.</p>
+                        <button class="btn btn-outline-gold w-100">Enter Owner Portal</button>
+                    </div>
+                </div>
+                <div class="col-md-4 delay-3 animate-fade">
+                    <div class="role-card" onclick="loginAs('admin')">
+                        <i class="bi bi-shield-lock role-icon"></i>
+                        <h3 class="h4 mb-3">Administrator</h3>
+                        <p class="small opacity-50 mb-4">Oversee listings, verify properties, and ensure platform quality.</p>
+                        <button class="btn btn-outline-gold w-100">Enter Admin Portal</button>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-5 text-white opacity-25">
+                <small><i class="bi bi-shield-check me-1"></i> Secure & Encrypted Platform</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= NAVIGATION ================= -->
+<nav id="top-nav" class="navbar main-nav navbar-dark d-none sticky-top">
+    <div class="container">
+        <a class="navbar-brand brand-font d-flex align-items-center" href="#" onclick="goHome()">
+            <i class="bi bi-house-door-fill text-warning me-2"></i>
+            <span>RoomFinder</span>
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-none d-md-flex" id="nav-links"></div>
+            <span id="role-indicator" class="badge bg-warning text-dark px-3 py-2">Role</span>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+                <i class="bi bi-moon-stars" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-light" onclick="logout()">
+                <i class="bi bi-box-arrow-right me-1"></i> Logout
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ================= 2. STUDENT VIEW ================= -->
+<section id="student-view" class="view-section">
+    <div class="search-hero text-white">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h1 class="display-5 fw-bold mb-3 animate-fade">Find Your Perfect Home</h1>
+                    <p class="lead opacity-75 mb-4">Browse verified properties near your campus</p>
+                    <div class="search-box mb-4 animate-slide">
+                        <i class="bi bi-search text-muted ms-3"></i>
+                        <input type="text" id="studentSearch" class="search-input" placeholder="Search by name, area, or room type..." onkeyup="debounceSearch()">
+                        <button class="btn btn-gold" onclick="filterProperties()">Search</button>
+                    </div>
+                    <div class="d-flex gap-2 justify-content-center flex-wrap" id="quick-filters">
+                        <span class="filter-chip active" onclick="setFilter('all', this)">All Properties</span>
+                        <span class="filter-chip" onclick="setFilter('boys', this)">Boys Hostel</span>
+                        <span class="filter-chip" onclick="setFilter('girls', this)">Girls Hostel</span>
+                        <span class="filter-chip" onclick="setFilter('pg', this)">PG/Rooms</span>
+                        <span class="filter-chip" onclick="setFilter('under8k', this)">Under 8,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="brand-font h3 mb-1">Available Properties</h2>
+                <p class="text-muted mb-0"><span id="result-count">0</span> listings found</p>
+            </div>
+            <div class="d-flex gap-2">
+                <select class="form-select" id="sortSelect" onchange="sortProperties()" style="width: auto;">
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                </select>
+                <button class="btn btn-outline-secondary" onclick="showWishlist()">
+                    <i class="bi bi-heart-fill text-danger"></i> Wishlist
+                    <span class="badge bg-danger ms-1" id="wishlist-count">0</span>
+                </button>
+            </div>
+        </div>
+        <div class="row g-4" id="property-list"></div>
+        <div id="load-more-container" class="text-center mt-5 d-none">
+            <button class="btn btn-outline-dark" onclick="loadMore()">Load More Properties</button>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 3. OWNER VIEW ================= -->
+<section id="owner-view" class="view-section">
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="brand-font h3 mb-1">Owner Dashboard</h2>
+                <p class="text-muted mb-0">Manage your properties and inquiries</p>
+            </div>
+            <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+                <i class="bi bi-plus-circle me-2"></i>Add New Listing
+            </button>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-buildings"></i></div>
+                    <h4 class="mb-1" id="stat-total">0</h4>
+                    <p class="text-muted mb-0 small">Total Listings</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle"></i></div>
+                    <h4 class="mb-1" id="stat-live">0</h4>
+                    <p class="text-muted mb-0 small">Live Properties</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-clock-history"></i></div>
+                    <h4 class="mb-1" id="stat-pending">0</h4>
+                    <p class="text-muted mb-0 small">Pending Approval</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info bg-opacity-10 text-info"><i class="bi bi-chat-dots"></i></div>
+                    <h4 class="mb-1" id="stat-inquiries">0</h4>
+                    <p class="text-muted mb-0 small">New Inquiries</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchOwnerTab('listings', this)">My Listings</button>
+            <button class="tab-btn" onclick="switchOwnerTab('inquiries', this)">
+                Inquiries <span class="badge bg-danger ms-1" id="inquiry-badge">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchOwnerTab('analytics', this)">Analytics</button>
+        </div>
+
+        <div id="owner-tab-listings" class="owner-tab-content">
+            <div class="row g-4" id="owner-property-list"></div>
+        </div>
+        <div id="owner-tab-inquiries" class="owner-tab-content d-none">
+            <div class="custom-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Student</th><th>Property</th><th>Message</th><th>Date</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="owner-inquiries-list"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="owner-tab-analytics" class="owner-tab-content d-none">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="mb-4">Property Views</h5>
+                        <div id="views-chart"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="mb-4">Inquiry Trends</h5>
+                        <div id="inquiry-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 4. ADMIN VIEW ================= -->
+<section id="admin-view" class="view-section">
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="brand-font h3 mb-1">Administration Panel</h2>
+                <p class="text-muted mb-0">Platform oversight and management</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary" onclick="exportData()">
+                    <i class="bi bi-download me-1"></i> Export
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-card border-start border-4 border-warning">
+                    <h4 class="mb-1" id="admin-pending">0</h4>
+                    <p class="text-muted mb-0 small">Pending Verifications</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card border-start border-4 border-success">
+                    <h4 class="mb-1" id="admin-verified">0</h4>
+                    <p class="text-muted mb-0 small">Verified Properties</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card border-start border-4 border-info">
+                    <h4 class="mb-1" id="admin-total-users">0</h4>
+                    <p class="text-muted mb-0 small">Total Users</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card border-start border-4 border-primary">
+                    <h4 class="mb-1" id="admin-total-inquiries">0</h4>
+                    <p class="text-muted mb-0 small">Total Inquiries</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchAdminTab('queue', this)">Approval Queue</button>
+            <button class="tab-btn" onclick="switchAdminTab('all-properties', this)">All Properties</button>
+            <button class="tab-btn" onclick="switchAdminTab('users', this)">Users</button>
+            <button class="tab-btn" onclick="switchAdminTab('reports', this)">Reports</button>
+        </div>
+
+        <div id="admin-tab-queue" class="admin-tab-content">
+            <div class="custom-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Property</th><th>Owner Details</th><th>Type & Price</th><th>Submitted</th><th class="text-end">Actions</th></tr>
+                    </thead>
+                    <tbody id="admin-queue"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="admin-tab-all-properties" class="admin-tab-content d-none">
+            <div class="custom-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Property</th><th>Owner</th><th>Status</th><th>Views</th><th>Inquiries</th><th class="text-end">Actions</th></tr>
+                    </thead>
+                    <tbody id="admin-all-properties"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="admin-tab-users" class="admin-tab-content d-none">
+            <div class="custom-table">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>User</th><th>Role</th><th>Joined</th><th>Activity</th><th class="text-end">Status</th></tr>
+                    </thead>
+                    <tbody id="admin-users-list"></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="admin-tab-reports" class="admin-tab-content d-none">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="mb-3">Platform Growth</h5>
+                        <div class="d-flex align-items-end gap-2" style="height: 200px;">
+                            <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 40%"></div>
+                            <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 55%"></div>
+                            <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 45%"></div>
+                            <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 70%"></div>
+                            <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 60%"></div>
+                            <div class="flex-fill bg-warning rounded-top" style="height: 85%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2 text-muted small">
+                            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <h5 class="mb-3">Property Categories</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1"><span>Boys Hostel</span><span class="fw-bold">45%</span></div>
+                            <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 45%"></div></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1"><span>Girls Hostel</span><span class="fw-bold">35%</span></div>
+                            <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 35%"></div></div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1"><span>PG/Rooms</span><span class="fw-bold">20%</span></div>
+                            <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 20%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= MODALS ================= -->
+
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="p-0 position-relative">
+                <img id="modalImg" src="" class="w-100" style="height: 320px; object-fit: cover;">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 bg-dark rounded-circle p-2" data-bs-dismiss="modal" style="opacity: 0.8;"></button>
+                <span id="modalVerified" class="card-badge bg-success text-white" style="top: 16px; left: 16px;">
+                    <i class="bi bi-shield-check me-1"></i>Verified
+                </span>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h3 id="modalTitle" class="brand-font mb-1"></h3>
+                        <p id="modalLoc" class="text-muted mb-0"><i class="bi bi-geo-alt me-1"></i></p>
+                    </div>
+                    <div class="text-end">
+                        <div class="price-tag" id="modalPrice"></div>
+                        <div class="stars" id="modalRating"></div>
+                        <small class="text-muted" id="modalReviews"></small>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded-3">
+                            <i class="bi bi-people fs-4 text-warning mb-1"></i>
+                            <div class="small fw-bold" id="modalType"></div>
+                            <div class="small text-muted">Type</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded-3">
+                            <i class="bi bi-door-open fs-4 text-warning mb-1"></i>
+                            <div class="small fw-bold" id="modalRooms"></div>
+                            <div class="small text-muted">Rooms</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded-3">
+                            <i class="bi bi-calendar-check fs-4 text-warning mb-1"></i>
+                            <div class="small fw-bold">Immediate</div>
+                            <div class="small text-muted">Availability</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded-3">
+                            <i class="bi bi-eye fs-4 text-warning mb-1"></i>
+                            <div class="small fw-bold" id="modalViews"></div>
+                            <div class="small text-muted">Views</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-3">Description</h5>
+                <p class="text-muted mb-4" id="modalDesc"></p>
+
+                <h5 class="fw-bold mb-3">Amenities</h5>
+                <div class="d-flex flex-wrap gap-2 mb-4" id="modalAmenities"></div>
+
+                <h5 class="fw-bold mb-3">Contact Owner</h5>
+                <div class="bg-light rounded-3 p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Your Name</label>
+                            <input type="text" id="inquiryName" class="form-control" placeholder="Enter your name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Your Phone</label>
+                            <input type="tel" id="inquiryPhone" class="form-control" placeholder="Enter phone number">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Message</label>
+                            <textarea id="inquiryMsg" class="form-control" rows="3" placeholder="I am interested in this property. Please contact me."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-terracotta w-100" onclick="sendInquiry()">
+                                <i class="bi bi-send me-2"></i>Send Inquiry
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addPropertyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title brand-font">List Your Property</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="propertyForm" onsubmit="event.preventDefault(); addNewProperty();">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Property Name *</label>
+                            <input type="text" id="newName" class="form-control" required placeholder="e.g. Royal Boys PG">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Property Type *</label>
+                            <select id="newType" class="form-select" required>
+                                <option value="boys">Boys Hostel</option>
+                                <option value="girls">Girls Hostel</option>
+                                <option value="pg">PG / Rooms</option>
+                                <option value="coed">Co-ed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Location / Area *</label>
+                            <input type="text" id="newLoc" class="form-control" required placeholder="e.g. Near West Gate, University Road">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Monthly Rent (Rs) *</label>
+                            <input type="number" id="newPrice" class="form-control" required placeholder="8000" min="1000">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Total Rooms</label>
+                            <input type="number" id="newRooms" class="form-control" placeholder="10" min="1">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea id="newDesc" class="form-control" rows="3" placeholder="Describe your property, nearby landmarks, rules, etc."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Amenities</label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-wifi" value="WiFi"><label class="form-check-label" for="amn-wifi">Free WiFi</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-ac" value="AC"><label class="form-check-label" for="amn-ac">Air Conditioning</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-food" value="Food"><label class="form-check-label" for="amn-food">Food Included</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-laundry" value="Laundry"><label class="form-check-label" for="amn-laundry">Laundry</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-security" value="Security"><label class="form-check-label" for="amn-security">24/7 Security</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-parking" value="Parking"><label class="form-check-label" for="amn-parking">Parking</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-gym" value="Gym"><label class="form-check-label" for="amn-gym">Gym</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" id="amn-power" value="Power Backup"><label class="form-check-label" for="amn-power">Power Backup</label></div></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Property Image</label>
+                            <div class="img-upload-preview" id="imgPreview" onclick="document.getElementById('newImg').click()">
+                                <i class="bi bi-cloud-upload fs-1 text-muted mb-2"></i>
+                                <p class="text-muted mb-0">Click to upload image</p>
+                                <small class="text-muted">or paste image URL below</small>
+                            </div>
+                            <input type="file" id="newImg" class="d-none" accept="image/*" onchange="previewImage(this)">
+                            <input type="text" id="newImgUrl" class="form-control mt-2" placeholder="Or paste image URL here...">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-gold flex-fill">Submit Listing</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="wishlistModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title brand-font">My Wishlist</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="wishlistBody"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="responseModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Respond to Inquiry</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Responding to <strong id="respStudent"></strong></p>
+                <textarea id="responseMsg" class="form-control" rows="4" placeholder="Type your response..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-gold" onclick="submitResponse()">Send Response</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// ================= DATA MANAGEMENT =================
+
+const defaultProperties = [
+    { id: 1, name: "Sunshine Boys Hostel", location: "0.5km from University Main Gate", price: 7500, type: "boys",
+      img: "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?q=80&w=800", verified: true, rating: 4.5, reviews: 28, rooms: 24, views: 342,
+      desc: "Premium boys hostel with modern amenities. Located just 500m from the university main gate. Spacious rooms with attached bathrooms. 24/7 security and CCTV surveillance.",
+      amenities: ["WiFi", "AC", "Security", "Food", "Laundry"], ownerId: 101, date: "2024-01-15" },
+    { id: 2, name: "Elite Girls Residency", location: "Near Engineering Block, College Road", price: 9000, type: "girls",
+      img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=800", verified: true, rating: 4.8, reviews: 45, rooms: 32, views: 518,
+      desc: "Luxury girls residency with premium facilities. Safe and secure environment with female wardens. Gym, study rooms, and recreational area available.",
+      amenities: ["WiFi", "AC", "Security", "Gym", "Food", "Parking"], ownerId: 102, date: "2024-02-01" },
+    { id: 3, name: "Campus View PG", location: "Opposite Main Library, Campus Road", price: 6500, type: "pg",
+      img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800", verified: false, rating: 4.2, reviews: 12, rooms: 16, views: 156,
+      desc: "Affordable PG with great view of the campus. Perfect for students who prefer quiet study environment. Home-cooked meals available.",
+      amenities: ["WiFi", "Food", "Laundry", "Power Backup"], ownerId: 103, date: "2024-03-10" },
+    { id: 4, name: "Scholar's Den", location: "1km from University, Market Street", price: 8200, type: "boys",
+      img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=800", verified: true, rating: 4.3, reviews: 19, rooms: 20, views: 289,
+      desc: "Modern hostel designed for serious students. Study-focused environment with library access. Close to shopping and dining areas.",
+      amenities: ["WiFi", "AC", "Security", "Parking", "Power Backup"], ownerId: 101, date: "2024-01-20" },
+    { id: 5, name: "Heritage Girls Hostel", location: "Old Campus Road, Heritage Colony", price: 7800, type: "girls",
+      img: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=800", verified: true, rating: 4.6, reviews: 33, rooms: 28, views: 401,
+      desc: "Traditional yet modern girls hostel in a peaceful neighborhood. Beautiful garden and outdoor sitting area. Strict security protocols.",
+      amenities: ["WiFi", "Security", "Food", "Laundry", "Gym"], ownerId: 104, date: "2024-02-15" },
+    { id: 6, name: "Budget Stay Rooms", location: "Back Gate Area, Student Lane", price: 4500, type: "pg",
+      img: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=800", verified: true, rating: 3.9, reviews: 15, rooms: 12, views: 198,
+      desc: "Economical option for budget-conscious students. Clean and basic rooms. Shared kitchen facility. Best value for money in the area.",
+      amenities: ["WiFi", "Food", "Power Backup"], ownerId: 105, date: "2024-03-01" }
+];
+
+const defaultUsers = [
+    { id: 101, name: "Rajesh Kumar", role: "owner", email: "rajesh@example.com", phone: "+91 98765 43210", active: true, joined: "2023-12-01" },
+    { id: 102, name: "Priya Sharma", role: "owner", email: "priya@example.com", phone: "+91 98765 43211", active: true, joined: "2024-01-10" },
+    { id: 103, name: "Amit Singh", role: "owner", email: "amit@example.com", phone: "+91 98765 43212", active: true, joined: "2024-02-20" },
+    { id: 104, name: "Sunita Devi", role: "owner", email: "sunita@example.com", phone: "+91 98765 43213", active: true, joined: "2024-01-05" },
+    { id: 105, name: "Vikram Patel", role: "owner", email: "vikram@example.com", phone: "+91 98765 43214", active: false, joined: "2024-03-15" },
+    { id: 201, name: "Rahul Student", role: "student", email: "rahul@example.com", active: true, joined: "2024-01-01" },
+    { id: 202, name: "Anjali Student", role: "student", email: "anjali@example.com", active: true, joined: "2024-02-01" },
+    { id: 999, name: "Admin User", role: "admin", email: "admin@roomfinder.com", active: true, joined: "2023-01-01" }
+];
+
+let properties = JSON.parse(localStorage.getItem('rf_properties')) || [...defaultProperties];
+let users = JSON.parse(localStorage.getItem('rf_users')) || [...defaultUsers];
+let inquiries = JSON.parse(localStorage.getItem('rf_inquiries')) || [];
+let wishlist = JSON.parse(localStorage.getItem('rf_wishlist')) || [];
+let currentUser = JSON.parse(localStorage.getItem('rf_currentUser')) || null;
+let currentRole = localStorage.getItem('rf_role') || null;
+let currentFilter = 'all';
+let selectedPropertyId = null;
+let selectedInquiryId = null;
+
+// ================= INITIALIZATION =================
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (currentRole && currentUser) {
+        switchView(currentRole + '-view');
+        updateNav();
+    }
+    const savedTheme = localStorage.getItem('rf_theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.getElementById('themeIcon').className = 'bi bi-sun';
+    }
+});
+
+// ================= AUTH & NAVIGATION =================
+
+function loginAs(role) {
+    currentRole = role;
+    if (role === 'student') {
+        currentUser = users.find(u => u.role === 'student') || users[5];
+    } else if (role === 'owner') {
+        currentUser = users.find(u => u.role === 'owner') || users[0];
+    } else {
+        currentUser = users.find(u => u.role === 'admin') || users[7];
+    }
+    localStorage.setItem('rf_role', currentRole);
+    localStorage.setItem('rf_currentUser', JSON.stringify(currentUser));
+    switchView(role + '-view');
+    updateNav();
+    showToast('Welcome back, ' + currentUser.name + '!', 'success');
+}
+
+function logout() {
+    currentUser = null;
+    currentRole = null;
+    localStorage.removeItem('rf_role');
+    localStorage.removeItem('rf_currentUser');
+    switchView('gateway');
+    document.getElementById('top-nav').classList.add('d-none');
+    showToast('Logged out successfully', 'info');
+}
+
+function goHome() {
+    if (currentRole === 'student') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        renderAll();
+    }
+}
+
+function switchView(viewId) {
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+    document.getElementById(viewId).classList.add('active-view');
+    const nav = document.getElementById('top-nav');
+    if (viewId === 'gateway') {
+        nav.classList.add('d-none');
+    } else {
+        nav.classList.remove('d-none');
+        document.getElementById('role-indicator').innerText = currentRole ? currentRole.toUpperCase() : 'GUEST';
+    }
+    renderAll();
+    window.scrollTo(0, 0);
+}
+
+function updateNav() {
+    const navLinks = document.getElementById('nav-links');
+    let links = '';
+    if (currentRole === 'student') {
+        links = '<a class="nav-link active" href="#" onclick="goHome()">Browse</a><a class="nav-link" href="#" onclick="showWishlist()">Wishlist</a>';
+    } else if (currentRole === 'owner') {
+        links = '<a class="nav-link active" href="#" onclick="goHome()">Dashboard</a><a class="nav-link" href="#" onclick="switchOwnerTab(\'inquiries\', this)">Inquiries</a>';
+    } else if (currentRole === 'admin') {
+        links = '<a class="nav-link active" href="#" onclick="goHome()">Overview</a><a class="nav-link" href="#" onclick="switchAdminTab(\'queue\', this)">Queue</a>';
+    }
+    navLinks.innerHTML = links;
+}
+
+function toggleTheme() {
+    const html = document.documentElement;
+    const icon = document.getElementById('themeIcon');
+    if (html.getAttribute('data-theme') === 'dark') {
+        html.removeAttribute('data-theme');
+        icon.className = 'bi bi-moon-stars';
+        localStorage.setItem('rf_theme', 'light');
+    } else {
+        html.setAttribute('data-theme', 'dark');
+        icon.className = 'bi bi-sun';
+        localStorage.setItem('rf_theme', 'dark');
+    }
+}
+
+// ================= RENDERING =================
+
+function renderAll() {
+    if (currentRole === 'student' || !currentRole) renderStudentView();
+    if (currentRole === 'owner') { renderOwnerView(); renderOwnerStats(); renderOwnerInquiries(); renderOwnerAnalytics(); }
+    if (currentRole === 'admin') { renderAdminView(); renderAdminStats(); renderAdminAllProperties(); renderAdminUsers(); }
+    updateWishlistCount();
+}
+
+function renderStudentView() {
+    const container = document.getElementById('property-list');
+    let filtered = properties.filter(p => p.verified);
+
+    if (currentFilter !== 'all') {
+        if (currentFilter === 'under8k') filtered = filtered.filter(p => p.price < 8000);
+        else filtered = filtered.filter(p => p.type === currentFilter);
+    }
+
+    const searchVal = document.getElementById('studentSearch')?.value.toLowerCase() || '';
+    if (searchVal) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(searchVal) || p.location.toLowerCase().includes(searchVal) || p.type.toLowerCase().includes(searchVal));
+    }
+
+    const sortVal = document.getElementById('sortSelect')?.value || 'newest';
+    if (sortVal === 'price-low') filtered.sort((a, b) => a.price - b.price);
+    else if (sortVal === 'price-high') filtered.sort((a, b) => b.price - a.price);
+    else if (sortVal === 'rating') filtered.sort((a, b) => b.rating - a.rating);
+    else filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    document.getElementById('result-count').innerText = filtered.length;
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-search"></i><h4>No properties found</h4><p class="text-muted">Try adjusting your filters or search terms</p></div></div>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(p => `
+        <div class="col-md-6 col-lg-4 property-card-item" data-name="${p.name.toLowerCase()}">
+            <div class="card h-100">
+                <div class="card-img-wrapper">
+                    <img src="${p.img}" class="card-img-top" style="height:220px; object-fit:cover;" alt="${p.name}">
+                    <span class="card-badge bg-success text-white"><i class="bi bi-shield-check me-1"></i>Verified</span>
+                    <button class="wishlist-btn ${isWishlisted(p.id) ? 'active' : ''}" onclick="toggleWishlist(${p.id}, this)">
+                        <i class="bi bi-heart${isWishlisted(p.id) ? '-fill' : ''}"></i>
+                    </button>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold mb-0">${p.name}</h5>
+                        <span class="badge bg-light text-dark border">${p.type.toUpperCase()}</span>
+                    </div>
+                    <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>${p.location}</p>
+                    <div class="d-flex flex-wrap gap-1 mb-3">
+                        ${p.amenities.slice(0, 3).map(a => `<span class="amenity-tag"><i class="bi bi-check-circle-fill text-warning" style="font-size:0.7rem;"></i>${a}</span>`).join('')}
+                        ${p.amenities.length > 3 ? `<span class="amenity-tag">+${p.amenities.length - 3} more</span>` : ''}
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="price-tag">Rs ${p.price.toLocaleString()}<small>/mo</small></span>
+                            <div class="stars mt-1">${renderStars(p.rating)} <small class="text-muted">(${p.reviews})</small></div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark" onclick="showDetails(${p.id})">Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderStars(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(rating)) stars += '<i class="bi bi-star-fill"></i>';
+        else if (i === Math.ceil(rating) && rating % 1 !== 0) stars += '<i class="bi bi-star-half"></i>';
+        else stars += '<i class="bi bi-star"></i>';
+    }
+    return stars;
+}
+
+function renderOwnerView() {
+    const container = document.getElementById('owner-property-list');
+    const myProps = properties.filter(p => p.ownerId === currentUser.id);
+
+    if (myProps.length === 0) {
+        container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-house"></i><h4>No listings yet</h4><p class="text-muted">Click "Add New Listing" to get started</p></div></div>';
+        return;
+    }
+
+    container.innerHTML = myProps.map(p => `
+        <div class="col-md-6">
+            <div class="owner-prop-card">
+                <div class="d-flex gap-3">
+                    <img src="${p.img}" class="rounded-3" width="100" height="100" style="object-fit:cover;">
+                    <div class="flex-fill">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="fw-bold mb-1">${p.name}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="#" onclick="showDetails(${p.id})"><i class="bi bi-eye me-2"></i>Preview</a></li>
+                                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteProperty(${p.id})"><i class="bi bi-trash me-2"></i>Delete</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-2">${p.location}</p>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="badge ${p.verified ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'} border">
+                                <span class="status-indicator ${p.verified ? 'status-live' : 'status-pending'}"></span>
+                                ${p.verified ? 'Live' : 'Pending'}
+                            </span>
+                            <span class="text-muted small"><i class="bi bi-eye me-1"></i>${p.views} views</span>
+                            <span class="text-muted small"><i class="bi bi-chat me-1"></i>${inquiries.filter(i => i.propertyId === p.id).length} inquiries</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <span class="price-tag">Rs ${p.price.toLocaleString()}<small>/mo</small></span>
+                    <span class="text-muted small">${p.rooms} rooms</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderOwnerStats() {
+    const myProps = properties.filter(p => p.ownerId === currentUser.id);
+    document.getElementById('stat-total').innerText = myProps.length;
+    document.getElementById('stat-live').innerText = myProps.filter(p => p.verified).length;
+    document.getElementById('stat-pending').innerText = myProps.filter(p => !p.verified).length;
+    const myInquiries = inquiries.filter(i => myProps.some(p => p.id === i.propertyId));
+    document.getElementById('stat-inquiries').innerText = myInquiries.filter(i => i.status === 'new').length;
+    document.getElementById('inquiry-badge').innerText = myInquiries.filter(i => i.status === 'new').length;
+}
+
+function renderOwnerInquiries() {
+    const container = document.getElementById('owner-inquiries-list');
+    const myProps = properties.filter(p => p.ownerId === currentUser.id);
+    const myInquiries = inquiries.filter(i => myProps.some(p => p.id === i.propertyId));
+
+    if (myInquiries.length === 0) {
+        container.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No inquiries yet</td></tr>';
+        return;
+    }
+
+    container.innerHTML = myInquiries.map(i => {
+        const prop = properties.find(p => p.id === i.propertyId);
+        return `
+            <tr>
+                <td><div class="fw-bold">${i.studentName}</div><div class="small text-muted">${i.studentPhone}</div></td>
+                <td><div class="fw-bold">${prop ? prop.name : 'Unknown'}</div></td>
+                <td><div class="small text-truncate" style="max-width:200px;">${i.message}</div></td>
+                <td><div class="small text-muted">${formatDate(i.date)}</div></td>
+                <td><span class="badge ${i.status === 'new' ? 'bg-warning text-dark' : i.status === 'responded' ? 'bg-success' : 'bg-secondary'}">${i.status}</span></td>
+                <td>
+                    ${i.status === 'new' ? `<button class="btn btn-sm btn-gold" onclick="openResponseModal(${i.id})">Respond</button>` : '<span class="text-muted small">Replied</span>'}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderOwnerAnalytics() {
+    const myProps = properties.filter(p => p.ownerId === currentUser.id);
+    const chartContainer = document.getElementById('views-chart');
+    if (myProps.length === 0) {
+        chartContainer.innerHTML = '<p class="text-muted text-center">No data available</p>';
+        return;
+    }
+    const maxViews = Math.max(...myProps.map(p => p.views));
+    chartContainer.innerHTML = myProps.map(p => `
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="small">${p.name}</span>
+                <span class="small fw-bold">${p.views} views</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-warning" style="width: ${(p.views / maxViews) * 100}%"></div>
+            </div>
+        </div>
+    `).join('');
+
+    const inquiryChart = document.getElementById('inquiry-chart');
+    const myInquiries = inquiries.filter(i => myProps.some(p => p.id === i.propertyId));
+    const inquiryCounts = {};
+    myProps.forEach(p => inquiryCounts[p.name] = myInquiries.filter(i => i.propertyId === p.id).length);
+    const maxInq = Math.max(...Object.values(inquiryCounts), 1);
+    inquiryChart.innerHTML = Object.entries(inquiryCounts).map(([name, count]) => `
+        <div class="mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="small">${name}</span>
+                <span class="small fw-bold">${count} inquiries</span>
+            </div>
+            <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-terracotta" style="width: ${(count / maxInq) * 100}%; background-color: var(--terracotta);"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderAdminView() {
+    const container = document.getElementById('admin-queue');
+    const pending = properties.filter(p => !p.verified);
+
+    if (pending.length === 0) {
+        container.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">No pending requests. All caught up!</td></tr>';
+        return;
+    }
+
+    container.innerHTML = pending.map(p => {
+        const owner = users.find(u => u.id === p.ownerId);
+        return `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="${p.img}" class="rounded-3" width="60" height="60" style="object-fit:cover;">
+                        <div>
+                            <div class="fw-bold">${p.name}</div>
+                            <div class="small text-muted">${p.location}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="fw-bold">${owner ? owner.name : 'Unknown'}</div>
+                    <div class="small text-muted">${owner ? owner.phone : ''}</div>
+                </td>
+                <td>
+                    <span class="badge bg-light text-dark border">${p.type.toUpperCase()}</span>
+                    <div class="small text-muted mt-1">Rs ${p.price.toLocaleString()}/mo</div>
+                </td>
+                <td><div class="small text-muted">${formatDate(p.date)}</div></td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-success px-3 me-2" onclick="approveProperty(${p.id})"><i class="bi bi-check-lg me-1"></i>Approve</button>
+                    <button class="btn btn-sm btn-outline-danger px-3" onclick="deleteProperty(${p.id})"><i class="bi bi-x-lg me-1"></i>Reject</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderAdminStats() {
+    document.getElementById('admin-pending').innerText = properties.filter(p => !p.verified).length;
+    document.getElementById('admin-verified').innerText = properties.filter(p => p.verified).length;
+    document.getElementById('admin-total-users').innerText = users.length;
+    document.getElementById('admin-total-inquiries').innerText = inquiries.length;
+}
+
+function renderAdminAllProperties() {
+    const container = document.getElementById('admin-all-properties');
+    container.innerHTML = properties.map(p => {
+        const owner = users.find(u => u.id === p.ownerId);
+        return `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="${p.img}" class="rounded-3" width="50" height="50" style="object-fit:cover;">
+                        <div>
+                            <div class="fw-bold">${p.name}</div>
+                            <div class="small text-muted">${p.location}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${owner ? owner.name : 'Unknown'}</td>
+                <td><span class="badge ${p.verified ? 'bg-success' : 'bg-warning text-dark'}">${p.verified ? 'Verified' : 'Pending'}</span></td>
+                <td>${p.views}</td>
+                <td>${inquiries.filter(i => i.propertyId === p.id).length}</td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteProperty(${p.id})"><i class="bi bi-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function renderAdminUsers() {
+    const container = document.getElementById('admin-users-list');
+    container.innerHTML = users.map(u => `
+        <tr>
+            <td>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold">${u.name}</div>
+                        <div class="small text-muted">${u.email}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="badge bg-light text-dark border text-capitalize">${u.role}</span></td>
+            <td><div class="small text-muted">${formatDate(u.joined)}</div></td>
+            <td><div class="small text-muted">${u.role === 'owner' ? properties.filter(p => p.ownerId === u.id).length + ' listings' : 'Active'}</div></td>
+            <td class="text-end">
+                <span class="badge ${u.active ? 'bg-success' : 'bg-secondary'}">${u.active ? 'Active' : 'Inactive'}</span>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// ================= ACTIONS =================
+
+function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderStudentView();
+}
+
+function debounceSearch() {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(filterProperties, 300);
+}
+
+function filterProperties() {
+    renderStudentView();
+}
+
+function sortProperties() {
+    renderStudentView();
+}
+
+function showDetails(id) {
+    const p = properties.find(x => x.id === id);
+    if (!p) return;
+    selectedPropertyId = id;
+    p.views++;
+    saveData();
+
+    document.getElementById('modalTitle').innerText = p.name;
+    document.getElementById('modalLoc').innerHTML = '<i class="bi bi-geo-alt me-1"></i>' + p.location;
+    document.getElementById('modalPrice').innerHTML = 'Rs ' + p.price.toLocaleString() + '<small>/mo</small>';
+    document.getElementById('modalImg').src = p.img;
+    document.getElementById('modalRating').innerHTML = renderStars(p.rating);
+    document.getElementById('modalReviews').innerText = p.reviews + ' reviews';
+    document.getElementById('modalType').innerText = p.type.toUpperCase();
+    document.getElementById('modalRooms').innerText = p.rooms || 'N/A';
+    document.getElementById('modalViews').innerText = p.views;
+    document.getElementById('modalDesc').innerText = p.desc || 'No description available.';
+    document.getElementById('modalAmenities').innerHTML = (p.amenities || []).map(a => 
+        `<span class="amenity-tag"><i class="bi bi-check-circle-fill text-warning" style="font-size:0.7rem;"></i>${a}</span>`
+    ).join('');
+
+    const verifiedBadge = document.getElementById('modalVerified');
+    if (p.verified) {
+        verifiedBadge.classList.remove('d-none');
+        verifiedBadge.innerHTML = '<i class="bi bi-shield-check me-1"></i>Verified';
+    } else {
+        verifiedBadge.classList.add('d-none');
+    }
+
+    new bootstrap.Modal('#detailsModal').show();
+}
+
+function sendInquiry() {
+    const name = document.getElementById('inquiryName').value.trim();
+    const phone = document.getElementById('inquiryPhone').value.trim();
+    const msg = document.getElementById('inquiryMsg').value.trim();
+
+    if (!name || !phone) {
+        showToast('Please fill in your name and phone number', 'warning');
+        return;
+    }
+
+    const inquiry = {
+        id: Date.now(),
+        propertyId: selectedPropertyId,
+        studentName: name,
+        studentPhone: phone,
+        message: msg || 'I am interested in this property.',
+        date: new Date().toISOString(),
+        status: 'new'
+    };
+
+    inquiries.push(inquiry);
+    saveData();
+
+    bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
+    document.getElementById('inquiryName').value = '';
+    document.getElementById('inquiryPhone').value = '';
+    document.getElementById('inquiryMsg').value = '';
+
+    showToast('Inquiry sent successfully! The owner will contact you soon.', 'success');
+    renderAll();
+}
+
+function addNewProperty() {
+    const name = document.getElementById('newName').value.trim();
+    const loc = document.getElementById('newLoc').value.trim();
+    const price = parseInt(document.getElementById('newPrice').value);
+    const type = document.getElementById('newType').value;
+    const rooms = parseInt(document.getElementById('newRooms').value) || 10;
+    const desc = document.getElementById('newDesc').value.trim();
+    const imgUrl = document.getElementById('newImgUrl').value.trim();
+
+    if (!name || !loc || !price) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+
+    const amenities = [];
+    document.querySelectorAll('#propertyForm input[type="checkbox"]:checked').forEach(cb => {
+        amenities.push(cb.value);
+    });
+
+    const newP = {
+        id: Date.now(),
+        name: name,
+        location: loc,
+        price: price,
+        type: type,
+        img: imgUrl || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800",
+        verified: false,
+        rating: 0,
+        reviews: 0,
+        rooms: rooms,
+        views: 0,
+        desc: desc || 'No description provided.',
+        amenities: amenities,
+        ownerId: currentUser ? currentUser.id : 101,
+        date: new Date().toISOString().split('T')[0]
+    };
+
+    properties.push(newP);
+    saveData();
+
+    bootstrap.Modal.getInstance(document.getElementById('addPropertyModal')).hide();
+    document.getElementById('propertyForm').reset();
+    document.getElementById('imgPreview').classList.remove('has-image');
+    document.getElementById('imgPreview').innerHTML = '<i class="bi bi-cloud-upload fs-1 text-muted mb-2"></i><p class="text-muted mb-0">Click to upload image</p><small class="text-muted">or paste image URL below</small>';
+
+    showToast('Property submitted! Waiting for admin verification.', 'success');
+    renderAll();
+}
+
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imgPreview');
+            preview.classList.add('has-image');
+            preview.innerHTML = '<img src="' + e.target.result + '" style="max-height:180px;max-width:100%;border-radius:8px;">';
+            document.getElementById('newImgUrl').value = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function approveProperty(id) {
+    const index = properties.findIndex(p => p.id === id);
+    if (index !== -1) {
+        properties[index].verified = true;
+        saveData();
+        showToast('Property approved and is now live!', 'success');
+        renderAll();
+    }
+}
+
+function deleteProperty(id) {
+    if (!confirm('Are you sure you want to delete this property?')) return;
+    properties = properties.filter(p => p.id !== id);
+    inquiries = inquiries.filter(i => i.propertyId !== id);
+    wishlist = wishlist.filter(w => w !== id);
+    saveData();
+    showToast('Property deleted successfully', 'info');
+    renderAll();
+}
+
+// ================= WISHLIST =================
+
+function isWishlisted(id) {
+    return wishlist.includes(id);
+}
+
+function toggleWishlist(id, btn) {
+    if (wishlist.includes(id)) {
+        wishlist = wishlist.filter(w => w !== id);
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="bi bi-heart"></i>';
+        showToast('Removed from wishlist', 'info');
+    } else {
+        wishlist.push(id);
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="bi bi-heart-fill"></i>';
+        showToast('Added to wishlist', 'success');
+    }
+    localStorage.setItem('rf_wishlist', JSON.stringify(wishlist));
+    updateWishlistCount();
+}
+
+function updateWishlistCount() {
+    document.getElementById('wishlist-count').innerText = wishlist.length;
+}
+
+function showWishlist() {
+    const container = document.getElementById('wishlistBody');
+    const items = properties.filter(p => wishlist.includes(p.id));
+
+    if (items.length === 0) {
+        container.innerHTML = '<div class="empty-state py-4"><i class="bi bi-heart"></i><h5>Your wishlist is empty</h5><p class="text-muted">Browse properties and add your favorites</p></div>';
+    } else {
+        container.innerHTML = items.map(p => `
+            <div class="d-flex gap-3 mb-3 p-3 bg-light rounded-3">
+                <img src="${p.img}" class="rounded-3" width="80" height="80" style="object-fit:cover;">
+                <div class="flex-fill">
+                    <h6 class="fw-bold mb-1">${p.name}</h6>
+                    <p class="text-muted small mb-1">${p.location}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="price-tag">Rs ${p.price.toLocaleString()}</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="toggleWishlist(${p.id}, this); showWishlist();">Remove</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    new bootstrap.Modal('#wishlistModal').show();
+}
+
+// ================= INQUIRY RESPONSE =================
+
+function openResponseModal(inquiryId) {
+    selectedInquiryId = inquiryId;
+    const inquiry = inquiries.find(i => i.id === inquiryId);
+    if (inquiry) {
+        document.getElementById('respStudent').innerText = inquiry.studentName;
+        document.getElementById('responseMsg').value = '';
+        new bootstrap.Modal('#responseModal').show();
+    }
+}
+
+function submitResponse() {
+    const msg = document.getElementById('responseMsg').value.trim();
+    if (!msg) {
+        showToast('Please type a response', 'warning');
+        return;
+    }
+
+    const inquiry = inquiries.find(i => i.id === selectedInquiryId);
+    if (inquiry) {
+        inquiry.status = 'responded';
+        inquiry.response = msg;
+        saveData();
+        showToast('Response sent successfully!', 'success');
+        bootstrap.Modal.getInstance(document.getElementById('responseModal')).hide();
+        renderAll();
+    }
+}
+
+// ================= TABS =================
+
+function switchOwnerTab(tab, btn) {
+    document.querySelectorAll('.owner-tab-content').forEach(t => t.classList.add('d-none'));
+    document.getElementById('owner-tab-' + tab).classList.remove('d-none');
+    document.querySelectorAll('#owner-view .tab-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+function switchAdminTab(tab, btn) {
+    document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.add('d-none'));
+    document.getElementById('admin-tab-' + tab).classList.remove('d-none');
+    document.querySelectorAll('#admin-view .tab-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+// ================= UTILITIES =================
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'custom-toast mb-2 animate-slide';
+
+    const icons = { success: 'bi-check-circle-fill text-success', warning: 'bi-exclamation-triangle-fill text-warning', info: 'bi-info-circle-fill text-info' };
+    const icon = icons[type] || icons.info;
+
+    toast.innerHTML = `
+        <div class="d-flex align-items-center gap-3">
+            <i class="bi ${icon} fs-4"></i>
+            <div class="flex-fill">${message}</div>
+            <button class="btn btn-sm btn-link text-muted" onclick="this.parentElement.parentElement.remove()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function saveData() {
+    localStorage.setItem('rf_properties', JSON.stringify(properties));
+    localStorage.setItem('rf_inquiries', JSON.stringify(inquiries));
+    localStorage.setItem('rf_users', JSON.stringify(users));
+}
+
+function exportData() {
+    const data = { properties, users, inquiries, exportedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'roomfinder-data.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Data exported successfully', 'success');
+}
+
+function loadMore() {
+    showToast('All properties loaded', 'info');
+}
+
+// ================= RESET =================
+
+function resetData() {
+    if (confirm('Reset all data to defaults?')) {
+        localStorage.removeItem('rf_properties');
+        localStorage.removeItem('rf_inquiries');
+        localStorage.removeItem('rf_wishlist');
+        localStorage.removeItem('rf_users');
+        location.reload();
+    }
+}
+</script>
+</body>
+</html>
