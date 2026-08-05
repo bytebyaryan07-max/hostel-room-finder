@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomFinder - Gateway Login & Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/shared.css">
+    <style>
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 480px;
+            width: 100%;
+            margin: 40px auto;
+        }
+        [data-theme="dark"] .auth-card {
+            background: rgba(26, 26, 46, 0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .auth-card .form-control {
+            background: white;
+            border: 2px solid #e9ecef;
+        }
+        [data-theme="dark"] .auth-card .form-control {
+            background: #1a1a2e;
+            border-color: #2d2d44;
+            color: #f8f9fa;
+        }
+        .auth-card .form-control:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(244, 197, 66, 0.15);
+        }
+        .role-option {
+            padding: 12px 16px;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+            color: #495057;
+            font-weight: 500;
+            user-select: none;
+        }
+        [data-theme="dark"] .role-option {
+            background: #1a1a2e;
+            border-color: #2d2d44;
+            color: #a0a0b0;
+        }
+        .role-option:hover {
+            border-color: var(--gold);
+            background: rgba(244, 197, 66, 0.06);
+            transform: translateY(-2px);
+        }
+        .role-option.role-active {
+            border-color: var(--gold) !important;
+            background: rgba(244, 197, 66, 0.15) !important;
+            color: #856404 !important;
+            font-weight: 700 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 197, 66, 0.25);
+        }
+        [data-theme="dark"] .role-option.role-active {
+            color: var(--gold) !important;
+        }
+        .role-option i {
+            font-size: 1.5rem;
+            color: #6c757d;
+            margin-bottom: 4px;
+            display: block;
+            pointer-events: none;
+        }
+        .role-option.role-active i {
+            color: var(--gold) !important;
+        }
+        .role-option div {
+            pointer-events: none;
+        }
+        .auth-toggle {
+            color: var(--gold);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .auth-toggle:hover {
+            text-decoration: underline;
+        }
+        .demo-creds {
+            background: rgba(244, 197, 66, 0.1);
+            border: 1px solid rgba(244, 197, 66, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 0.85rem;
+        }
+        .demo-creds code {
+            background: rgba(244, 197, 66, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+        [data-theme="dark"] .demo-creds code {
+            color: #f4c542;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .auth-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--gold), #e0b435);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--charcoal);
+            margin: 0 auto 20px;
+        }
+        .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            display: none;
+            padding: 8px 12px;
+            background: rgba(220, 53, 69, 0.08);
+            border-radius: 8px;
+        }
+        .error-msg.show { display: block; }
+    </style>
+</head>
+<body>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+<section id="gateway">
+    <div class="gateway-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+
+                    <!-- LOGIN FORM -->
+                    <div id="login-view" class="auth-card animate-fade">
+                        <div class="auth-logo">
+                            <i class="bi bi-house-heart-fill"></i>
+                        </div>
+                        <h2 class="brand-font text-center mb-1">Welcome Back</h2>
+                        <p class="text-muted text-center mb-4">Sign in to your account</p>
+
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Username</label>
+                                <input type="text" id="login-username" class="form-control" placeholder="Enter your username" required autocomplete="username">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Password</label>
+                                <div class="position-relative">
+                                    <input type="password" id="login-password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('login-password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small">I am a</label>
+                                <div class="row g-2" id="login-roles">
+                                    <div class="col-4">
+                                        <div class="role-option role-active" data-role="student" id="role-student">
+                                            <i class="bi bi-mortarboard"></i>
+                                            <div>Student</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="role-option" data-role="owner" id="role-owner">
+                                            <i class="bi bi-house-check"></i>
+                                            <div>Owner</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="role-option" data-role="admin" id="role-admin">
+                                            <i class="bi bi-shield-lock"></i>
+                                            <div>Admin</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="error-msg mb-3" id="login-error">
+                                <i class="bi bi-exclamation-circle me-1"></i><span></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-gold w-100 py-3 mb-3">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                            </button>
+
+                            <p class="text-center text-muted mb-0">
+                                Don't have an account? <span class="auth-toggle" onclick="showSignup()">Create one</span>
+                            </p>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <div class="demo-creds">
+                            <div class="fw-bold mb-2"><i class="bi bi-info-circle me-1"></i>Demo Credentials</div>
+                            <div class="mb-1"><strong>Students:</strong> <code>rahul</code> / <code>student123</code> | <code>anjali</code> / <code>student123</code></div>
+                            <div class="mb-1"><strong>Owners:</strong> <code>rajesh</code> / <code>owner123</code> | <code>priya</code> / <code>owner123</code></div>
+                            <div><strong>Admin:</strong> <code>admin</code> / <code>admin123</code></div>
+                        </div>
+                    </div>
+
+                    <!-- SIGNUP FORM -->
+                    <div id="signup-view" class="auth-card d-none">
+                        <div class="auth-logo">
+                            <i class="bi bi-person-plus-fill"></i>
+                        </div>
+                        <h2 class="brand-font text-center mb-1">Create Account</h2>
+                        <p class="text-muted text-center mb-4">Join RoomFinder today</p>
+
+                        <form id="signupForm">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Full Name *</label>
+                                <input type="text" id="signup-name" class="form-control" placeholder="e.g. Rahul Sharma" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Username *</label>
+                                <input type="text" id="signup-username" class="form-control" placeholder="Choose a username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Email</label>
+                                <input type="email" id="signup-email" class="form-control" placeholder="your@email.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Phone</label>
+                                <input type="tel" id="signup-phone" class="form-control" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Password *</label>
+                                <div class="position-relative">
+                                    <input type="password" id="signup-password" class="form-control" placeholder="Min 6 characters" required minlength="6">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('signup-password', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small">Confirm Password *</label>
+                                <div class="position-relative">
+                                    <input type="password" id="signup-confirm" class="form-control" placeholder="Re-enter password" required>
+                                    <button type="button" class="password-toggle" onclick="togglePassword('signup-confirm', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold small">I want to join as</label>
+                                <div class="row g-2" id="signup-roles">
+                                    <div class="col-6">
+                                        <div class="role-option role-active" data-role="student" id="signup-role-student">
+                                            <i class="bi bi-mortarboard"></i>
+                                            <div>Student</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="role-option" data-role="owner" id="signup-role-owner">
+                                            <i class="bi bi-house-check"></i>
+                                            <div>Property Owner</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="error-msg mb-3" id="signup-error">
+                                <i class="bi bi-exclamation-circle me-1"></i><span></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-gold w-100 py-3 mb-3">
+                                <i class="bi bi-person-check me-2"></i>Create Account
+                            </button>
+
+                            <p class="text-center text-muted mb-0">
+                                Already have an account? <span class="auth-toggle" onclick="showLogin()">Sign in</span>
+                            </p>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/shared.js"></script>
+<script>
+    // Redirect if already logged in
+    if (DB.currentUser && DB.currentRole) {
+        window.location.href = DB.currentRole + '.html';
+    }
+
+    UI.initTheme();
+
+    let selectedRole = 'student';
+    let selectedSignupRole = 'student';
+
+    function attachRoleHandlers(containerId, callback) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const options = container.querySelectorAll('.role-option');
+        options.forEach(opt => {
+            opt.addEventListener('click', function() {
+                const role = this.getAttribute('data-role');
+                callback(role);
+                options.forEach(o => o.classList.remove('role-active'));
+                this.classList.add('role-active');
+            });
+        });
+    }
+
+    attachRoleHandlers('login-roles', function(role) {
+        selectedRole = role;
+    });
+
+    attachRoleHandlers('signup-roles', function(role) {
+        selectedSignupRole = role;
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleLogin();
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        handleSignup();
+    });
+
+    function showLogin() {
+        document.getElementById('login-view').classList.remove('d-none');
+        document.getElementById('signup-view').classList.add('d-none');
+        clearErrors();
+    }
+
+    function showSignup() {
+        document.getElementById('login-view').classList.add('d-none');
+        document.getElementById('signup-view').classList.remove('d-none');
+        clearErrors();
+    }
+
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'bi bi-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'bi bi-eye';
+        }
+    }
+
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        el.querySelector('span').innerText = msg;
+        el.classList.add('show');
+    }
+
+    function clearErrors() {
+        document.getElementById('login-error').classList.remove('show');
+        document.getElementById('signup-error').classList.remove('show');
+    }
+
+    async function handleLogin() {
+        clearErrors();
+        const username = document.getElementById('login-username').value.trim().toLowerCase();
+        const password = document.getElementById('login-password').value;
+
+        if (!username || !password) {
+            showError('login-error', 'Please enter both username and password');
+            return;
+        }
+
+        // Try API first
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, role: selectedRole })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                DB.currentUser = data.user;
+                DB.currentRole = data.user.role;
+                UI.showToast('Welcome back, ' + data.user.name + '!', 'success');
+                setTimeout(() => window.location.href = data.user.role + '.html', 600);
+                return;
+            } else if (!res.ok && data.error) {
+                showError('login-error', data.error);
+                return;
+            }
+        } catch (err) {
+            // Local fallback
+        }
+
+        const user = Auth.login(username, password);
+
+        if (!user) {
+            showError('login-error', 'Invalid username or password');
+            return;
+        }
+
+        if (user.role !== selectedRole) {
+            showError('login-error', 'This account is registered as a ' + user.role + ', not ' + selectedRole);
+            Auth.logout();
+            return;
+        }
+
+        UI.showToast('Welcome back, ' + user.name + '!', 'success');
+        setTimeout(function() {
+            window.location.href = user.role + '.html';
+        }, 600);
+    }
+
+    async function handleSignup() {
+        clearErrors();
+        const name = document.getElementById('signup-name').value.trim();
+        const username = document.getElementById('signup-username').value.trim().toLowerCase();
+        const email = document.getElementById('signup-email').value.trim();
+        const phone = document.getElementById('signup-phone').value.trim();
+        const password = document.getElementById('signup-password').value;
+        const confirm = document.getElementById('signup-confirm').value;
+
+        if (!name || !username || !password) {
+            showError('signup-error', 'Please fill in all required fields');
+            return;
+        }
+
+        if (username.length < 3) {
+            showError('signup-error', 'Username must be at least 3 characters');
+            return;
+        }
+
+        if (password.length < 6) {
+            showError('signup-error', 'Password must be at least 6 characters');
+            return;
+        }
+
+        if (password !== confirm) {
+            showError('signup-error', 'Passwords do not match');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, username, password, role: selectedSignupRole, email, phone })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                DB.currentUser = data.user;
+                DB.currentRole = data.user.role;
+                UI.showToast('Account created! Welcome, ' + name + '!', 'success');
+                setTimeout(() => window.location.href = selectedSignupRole + '.html', 800);
+                return;
+            } else if (data.error) {
+                showError('signup-error', data.error);
+                return;
+            }
+        } catch (err) {
+            // Local fallback
+        }
+
+        const result = Auth.register({
+            name: name,
+            username: username,
+            password: password,
+            role: selectedSignupRole,
+            email: email,
+            phone: phone
+        });
+
+        if (!result.success) {
+            showError('signup-error', result.error);
+            return;
+        }
+
+        UI.showToast('Account created! Welcome, ' + name + '!', 'success');
+        setTimeout(function() {
+            window.location.href = selectedSignupRole + '.html';
+        }, 800);
+    }
+</script>
+</body>
+</html>

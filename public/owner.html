@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomFinder - Owner Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/shared.css">
+    <style>
+        .tab-nav {
+            display: flex;
+            gap: 12px;
+            border-bottom: 2px solid rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        [data-theme="dark"] .tab-nav {
+            border-color: rgba(255,255,255,0.1);
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .tab-btn.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+        .owner-prop-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+        .img-upload-preview {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            background: rgba(0,0,0,0.02);
+            transition: all 0.25s ease;
+        }
+        .img-upload-preview:hover {
+            border-color: var(--gold);
+            background: rgba(244, 197, 66, 0.05);
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+<!-- ================= NAVIGATION ================= -->
+<nav class="navbar main-nav navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand brand-font d-flex align-items-center" href="owner.html">
+            <i class="bi bi-house-door-fill text-warning me-2"></i>
+            <span>RoomFinder Owner</span>
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-none d-md-flex">
+                <a class="nav-link active" href="owner.html"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+                <a class="nav-link" href="#" onclick="switchOwnerTab('inquiries', document.querySelectorAll('.tab-btn')[1])">
+                    <i class="bi bi-chat-dots me-1"></i>Inquiries <span class="badge bg-danger ms-1" id="nav-inquiry-badge">0</span>
+                </a>
+            </div>
+            <div class="d-flex align-items-center gap-2 text-white">
+                <div class="user-avatar" style="width:36px;height:36px;font-size:0.9rem;" id="nav-user-avatar"></div>
+                <span class="small d-none d-md-inline" id="nav-user-name"></span>
+            </div>
+            <button class="theme-toggle" onclick="UI.toggleTheme()" title="Toggle Theme">
+                <i class="bi bi-moon-stars" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-light" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="brand-font h3 mb-1">Owner Dashboard</h2>
+            <p class="text-muted mb-0">Manage your properties and student inquiries</p>
+        </div>
+        <button class="btn btn-gold" data-bs-toggle="modal" data-bs-target="#addPropertyModal">
+            <i class="bi bi-plus-circle me-2"></i>Add New Listing
+        </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h4 class="mb-1 fw-bold text-warning" id="stat-total">0</h4>
+                <p class="text-muted mb-0 small">Total Listings</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h4 class="mb-1 fw-bold text-success" id="stat-live">0</h4>
+                <p class="text-muted mb-0 small">Live Properties</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h4 class="mb-1 fw-bold text-warning" id="stat-pending">0</h4>
+                <p class="text-muted mb-0 small">Pending Approval</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <h4 class="mb-1 fw-bold text-info" id="stat-inquiries">0</h4>
+                <p class="text-muted mb-0 small">New Inquiries</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchOwnerTab('listings', this)">My Listings</button>
+        <button class="tab-btn" onclick="switchOwnerTab('inquiries', this)">
+            Inquiries <span class="badge bg-danger ms-1" id="tab-inquiry-badge">0</span>
+        </button>
+        <button class="tab-btn" onclick="switchOwnerTab('analytics', this)">Analytics</button>
+    </div>
+
+    <!-- Listings Tab -->
+    <div id="owner-tab-listings" class="owner-tab-content">
+        <div class="row g-4" id="owner-property-list"></div>
+    </div>
+
+    <!-- Inquiries Tab -->
+    <div id="owner-tab-inquiries" class="owner-tab-content d-none">
+        <div class="card p-3">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Property</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="owner-inquiries-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="owner-tab-analytics" class="owner-tab-content d-none">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-4">Property Views</h5>
+                    <div id="views-chart"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-4">Inquiry Trends</h5>
+                    <div id="inquiry-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= ADD PROPERTY MODAL ================= -->
+<div class="modal fade" id="addPropertyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title brand-font">List Your Property</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="propertyForm" onsubmit="event.preventDefault(); addNewProperty();">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Property Name *</label>
+                            <input type="text" id="newName" class="form-control" required placeholder="e.g. Royal Boys PG">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Property Type *</label>
+                            <select id="newType" class="form-select" required>
+                                <option value="boys">Boys Hostel</option>
+                                <option value="girls">Girls Hostel</option>
+                                <option value="pg">PG / Rooms</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Location / Area *</label>
+                            <input type="text" id="newLoc" class="form-control" required placeholder="e.g. North Campus, DU">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Monthly Rent (₹) *</label>
+                            <input type="number" id="newPrice" class="form-control" required placeholder="8000" min="1000">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Total Rooms</label>
+                            <input type="number" id="newRooms" class="form-control" placeholder="10" min="1">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea id="newDesc" class="form-control" rows="3" placeholder="Describe your property, nearby landmarks, rules, etc."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Amenities</label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="WiFi" id="amn-wifi"><label class="form-check-label small" for="amn-wifi">Free WiFi</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="AC" id="amn-ac"><label class="form-check-label small" for="amn-ac">Air Conditioning</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="Food Included" id="amn-food"><label class="form-check-label small" for="amn-food">Food Included</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="Laundry" id="amn-laundry"><label class="form-check-label small" for="amn-laundry">Laundry</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="CCTV Security" id="amn-security"><label class="form-check-label small" for="amn-security">24/7 Security</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="Power Backup" id="amn-power"><label class="form-check-label small" for="amn-power">Power Backup</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="Gym" id="amn-gym"><label class="form-check-label small" for="amn-gym">Gym</label></div></div>
+                                <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" type="checkbox" value="Study Room" id="amn-study"><label class="form-check-label small" for="amn-study">Study Lounge</label></div></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Property Image</label>
+                            <div class="img-upload-preview" id="imgPreview" onclick="document.getElementById('newImg').click()">
+                                <i class="bi bi-cloud-upload fs-1 text-muted mb-2"></i>
+                                <p class="text-muted mb-0">Click to upload image</p>
+                                <small class="text-muted">or paste image URL below</small>
+                            </div>
+                            <input type="file" id="newImg" class="d-none" accept="image/*" onchange="previewImage(this)">
+                            <input type="text" id="newImgUrl" class="form-control mt-2" placeholder="Or paste image URL here...">
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="button" class="btn btn-outline-secondary flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-gold flex-fill">Submit Listing</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= REPLY MODAL ================= -->
+<div class="modal fade" id="replyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title brand-font">Reply to Student</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="user-avatar" style="width:32px;height:32px;font-size:0.8rem;" id="reply-student-avatar"></div>
+                        <strong id="reply-student-name"></strong>
+                        <span class="text-muted small">- <span id="reply-property-name"></span></span>
+                    </div>
+                    <div class="bg-light rounded-3 p-3 mb-3">
+                        <p class="mb-0 text-dark" id="reply-original-msg"></p>
+                    </div>
+                </div>
+                <label class="form-label fw-bold">Your Response</label>
+                <textarea id="replyMsg" class="form-control" rows="4" placeholder="Type your response to the student..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-gold" onclick="submitReply()">Send Reply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= VIEW CONVERSATION MODAL ================= -->
+<div class="modal fade" id="viewConversationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title brand-font">Conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="message-thread mb-3" id="ownerConversationThread"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/shared.js"></script>
+<script>
+    if (!Auth.require('owner', 'index.html')) throw new Error('Auth required');
+    const user = DB.currentUser;
+    Auth.initNav();
+    UI.initTheme();
+
+    let selectedInquiryId = null;
+
+    function renderStats() {
+        const myProps = DB.properties.filter(p => p.ownerId === user.id);
+        const myInquiries = DB.getUserInquiries(user.id, 'owner');
+        document.getElementById('stat-total').innerText = myProps.length;
+        document.getElementById('stat-live').innerText = myProps.filter(p => p.verified).length;
+        document.getElementById('stat-pending').innerText = myProps.filter(p => !p.verified).length;
+        document.getElementById('stat-inquiries').innerText = myInquiries.filter(i => i.status === 'new').length;
+        document.getElementById('nav-inquiry-badge').innerText = myInquiries.filter(i => i.status === 'new').length;
+        document.getElementById('tab-inquiry-badge').innerText = myInquiries.filter(i => i.status === 'new').length;
+    }
+
+    function renderListings() {
+        const container = document.getElementById('owner-property-list');
+        const myProps = DB.properties.filter(p => p.ownerId === user.id);
+
+        if (myProps.length === 0) {
+            container.innerHTML = '<div class="col-12"><div class="empty-state"><i class="bi bi-house"></i><h4>No listings yet</h4><p class="text-muted">Click "Add New Listing" to get started</p></div></div>';
+            return;
+        }
+
+        container.innerHTML = myProps.map(p => `
+            <div class="col-md-6">
+                <div class="owner-prop-card">
+                    <div class="d-flex gap-3">
+                        <img src="${p.img}" class="rounded-3" width="100" height="100" style="object-fit:cover;">
+                        <div class="flex-fill">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="fw-bold mb-1">${p.name}</h5>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProperty(${p.id})"><i class="bi bi-trash"></i></button>
+                            </div>
+                            <p class="text-muted small mb-2">${p.location}</p>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="badge ${p.verified ? 'bg-success' : 'bg-warning text-dark'}">
+                                    ${p.verified ? 'Live' : 'Pending Verification'}
+                                </span>
+                                <span class="text-muted small"><i class="bi bi-eye me-1"></i>${p.views} views</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                        <span class="price-tag">${UI.formatPrice(p.price)}<small>/mo</small></span>
+                        <span class="text-muted small">${p.rooms || 1} rooms</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderInquiries() {
+        const container = document.getElementById('owner-inquiries-list');
+        const myInquiries = DB.getUserInquiries(user.id, 'owner');
+
+        if (myInquiries.length === 0) {
+            container.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">No inquiries yet. Students will appear here when they contact you.</td></tr>';
+            return;
+        }
+
+        container.innerHTML = myInquiries.map(i => {
+            const prop = DB.properties.find(p => p.id === i.propertyId);
+            return `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width:32px;height:32px;font-size:0.85rem;">${i.studentName.charAt(0)}</div>
+                            <div>
+                                <div class="fw-bold">${i.studentName}</div>
+                                <div class="small text-muted">${i.studentPhone}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><div class="fw-bold">${prop ? prop.name : 'Unknown'}</div></td>
+                    <td><div class="small text-truncate" style="max-width:200px;">${i.message}</div></td>
+                    <td><div class="small text-muted">${UI.formatDateTime(i.date)}</div></td>
+                    <td>
+                        <span class="badge ${i.status === 'new' ? 'bg-warning text-dark' : i.status === 'responded' ? 'bg-success' : 'bg-secondary'}">
+                            ${i.status === 'new' ? 'New' : i.status === 'responded' ? 'Replied' : 'Closed'}
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        ${i.status === 'new' ?
+                            `<button class="btn btn-sm btn-gold me-1" onclick="openReplyModal(${i.id})">Reply</button>` :
+                            `<button class="btn btn-sm btn-outline-secondary me-1" onclick="viewConversation(${i.id})">View</button>`
+                        }
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function openReplyModal(inquiryId) {
+        selectedInquiryId = inquiryId;
+        const inquiry = DB.inquiries.find(i => i.id === inquiryId);
+        if (!inquiry) return;
+        const prop = DB.properties.find(p => p.id === inquiry.propertyId);
+
+        document.getElementById('reply-student-name').innerText = inquiry.studentName;
+        document.getElementById('reply-student-avatar').innerText = inquiry.studentName.charAt(0);
+        document.getElementById('reply-property-name').innerText = prop ? prop.name : 'Property';
+        document.getElementById('reply-original-msg').innerText = inquiry.message;
+        document.getElementById('replyMsg').value = '';
+
+        new bootstrap.Modal('#replyModal').show();
+    }
+
+    async function submitReply() {
+        const msg = document.getElementById('replyMsg').value.trim();
+        if (!msg) {
+            UI.showToast('Please type a response', 'warning');
+            return;
+        }
+
+        const inquiry = DB.inquiries.find(i => i.id === selectedInquiryId);
+        if (!inquiry) return;
+
+        inquiry.response = msg;
+        inquiry.status = 'responded';
+        inquiry.responseDate = new Date().toISOString();
+        inquiry.readByStudent = false;
+        DB.inquiries = DB.inquiries;
+
+        try {
+            await fetch(`/api/inquiries/${selectedInquiryId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ response: msg, status: 'responded', responseDate: inquiry.responseDate, readByStudent: false })
+            });
+        } catch (e) {}
+
+        bootstrap.Modal.getInstance(document.getElementById('replyModal')).hide();
+        UI.showToast('Reply sent to ' + inquiry.studentName + '!', 'success');
+        renderAll();
+    }
+
+    function viewConversation(inquiryId) {
+        const inquiry = DB.inquiries.find(i => i.id === inquiryId);
+        if (!inquiry) return;
+
+        const thread = document.getElementById('ownerConversationThread');
+        thread.innerHTML = `
+            <div class="message-bubble received">
+                <div><strong>${inquiry.studentName}</strong></div>
+                <div>${inquiry.message}</div>
+                <div class="message-meta">${UI.formatDateTime(inquiry.date)}</div>
+            </div>
+            ${inquiry.response ? `
+            <div class="message-bubble sent">
+                <div><strong>You</strong></div>
+                <div>${inquiry.response}</div>
+                <div class="message-meta">${UI.formatDateTime(inquiry.responseDate)}</div>
+            </div>
+            ` : '<p class="text-muted text-center">No response yet</p>'}
+        `;
+
+        new bootstrap.Modal('#viewConversationModal').show();
+    }
+
+    function renderAnalytics() {
+        const myProps = DB.properties.filter(p => p.ownerId === user.id);
+        const chartContainer = document.getElementById('views-chart');
+        if (myProps.length === 0) {
+            chartContainer.innerHTML = '<p class="text-muted text-center">No data available</p>';
+            return;
+        }
+        const maxViews = Math.max(...myProps.map(p => p.views), 1);
+        chartContainer.innerHTML = myProps.map(p => `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small">${p.name}</span>
+                    <span class="small fw-bold">${p.views} views</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-warning" style="width: ${(p.views / maxViews) * 100}%"></div>
+                </div>
+            </div>
+        `).join('');
+
+        const inquiryChart = document.getElementById('inquiry-chart');
+        const myInquiries = DB.getUserInquiries(user.id, 'owner');
+        const inquiryCounts = {};
+        myProps.forEach(p => inquiryCounts[p.name] = myInquiries.filter(i => i.propertyId === p.id).length);
+        const maxInq = Math.max(...Object.values(inquiryCounts), 1);
+        inquiryChart.innerHTML = Object.entries(inquiryCounts).map(([name, count]) => `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="small">${name}</span>
+                    <span class="small fw-bold">${count} inquiries</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar style="width: ${(count / maxInq) * 100}%; background-color: var(--terracotta);"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function addNewProperty() {
+        const name = document.getElementById('newName').value.trim();
+        const loc = document.getElementById('newLoc').value.trim();
+        const price = parseInt(document.getElementById('newPrice').value);
+        const type = document.getElementById('newType').value;
+        const rooms = parseInt(document.getElementById('newRooms').value) || 10;
+        const desc = document.getElementById('newDesc').value.trim();
+        const imgUrl = document.getElementById('newImgUrl').value.trim();
+
+        if (!name || !loc || !price) {
+            UI.showToast('Please fill in all required fields', 'warning');
+            return;
+        }
+
+        const amenities = [];
+        document.querySelectorAll('#propertyForm input[type="checkbox"]:checked').forEach(cb => {
+            amenities.push(cb.value);
+        });
+
+        const newP = {
+            id: Date.now(),
+            name: name,
+            location: loc,
+            price: price,
+            type: type,
+            img: imgUrl || "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800",
+            verified: false,
+            rating: 5.0,
+            reviews: 0,
+            rooms: rooms,
+            views: 0,
+            desc: desc || 'Well maintained property near campus.',
+            amenities: amenities.length ? amenities : ['WiFi', 'AC'],
+            ownerId: user.id,
+            ownerName: user.name,
+            date: new Date().toISOString()
+        };
+
+        try {
+            await fetch('/api/properties', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newP)
+            });
+        } catch (e) {}
+
+        const list = DB.properties;
+        list.unshift(newP);
+        DB.properties = list;
+
+        bootstrap.Modal.getInstance(document.getElementById('addPropertyModal')).hide();
+        document.getElementById('propertyForm').reset();
+        UI.showToast('Property submitted! Waiting for admin verification.', 'success');
+        renderAll();
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imgPreview');
+                preview.innerHTML = '<img src="' + e.target.result + '" style="max-height:180px;max-width:100%;border-radius:8px;">';
+                document.getElementById('newImgUrl').value = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function deleteProperty(id) {
+        if (!confirm('Are you sure you want to delete this property?')) return;
+        try {
+            await fetch(`/api/properties/${id}`, { method: 'DELETE' });
+        } catch (e) {}
+
+        DB.properties = DB.properties.filter(p => p.id !== id);
+        UI.showToast('Property deleted', 'info');
+        renderAll();
+    }
+
+    function switchOwnerTab(tabName, btn) {
+        document.querySelectorAll('.owner-tab-content').forEach(el => el.classList.add('d-none'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+        document.getElementById('owner-tab-' + tabName).classList.remove('d-none');
+        if (btn) btn.classList.add('active');
+    }
+
+    function renderAll() {
+        renderStats();
+        renderListings();
+        renderInquiries();
+        renderAnalytics();
+    }
+
+    function logout() {
+        Auth.logout();
+        window.location.href = 'index.html';
+    }
+
+    renderAll();
+</script>
+</body>
+</html>

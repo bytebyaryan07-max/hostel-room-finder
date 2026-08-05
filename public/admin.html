@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoomFinder - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/shared.css">
+</head>
+<body>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+<!-- ================= NAVIGATION ================= -->
+<nav class="navbar main-nav navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand brand-font d-flex align-items-center" href="admin.html">
+            <i class="bi bi-house-door-fill text-warning me-2"></i>
+            <span>RoomFinder Admin</span>
+        </a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-none d-md-flex">
+                <a class="nav-link active" href="admin.html"><i class="bi bi-shield-lock me-1"></i>Admin Panel</a>
+            </div>
+            <div class="d-flex align-items-center gap-2 text-white">
+                <div class="user-avatar" style="width:36px;height:36px;font-size:0.9rem;" id="nav-user-avatar"></div>
+                <span class="small d-none d-md-inline" id="nav-user-name"></span>
+            </div>
+            <button class="theme-toggle" onclick="UI.toggleTheme()" title="Toggle Theme">
+                <i class="bi bi-moon-stars" id="themeIcon"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-light" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="brand-font h3 mb-1">Administration Panel</h2>
+            <p class="text-muted mb-0">Platform oversight and management</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" onclick="UI.exportData()">
+                <i class="bi bi-download me-1"></i> Export Data
+            </button>
+            <button class="btn btn-outline-danger" onclick="resetPlatform()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="stat-card border-start border-4 border-warning">
+                <h4 class="mb-1 fw-bold text-warning" id="admin-pending">0</h4>
+                <p class="text-muted mb-0 small">Pending Verifications</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card border-start border-4 border-success">
+                <h4 class="mb-1 fw-bold text-success" id="admin-verified">0</h4>
+                <p class="text-muted mb-0 small">Verified Properties</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card border-start border-4 border-info">
+                <h4 class="mb-1 fw-bold text-info" id="admin-total-users">0</h4>
+                <p class="text-muted mb-0 small">Total Users</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card border-start border-4 border-primary">
+                <h4 class="mb-1 fw-bold text-primary" id="admin-total-inquiries">0</h4>
+                <p class="text-muted mb-0 small">Total Inquiries</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchAdminTab('queue', this)">Approval Queue</button>
+        <button class="tab-btn" onclick="switchAdminTab('all-properties', this)">All Properties</button>
+        <button class="tab-btn" onclick="switchAdminTab('users', this)">Users</button>
+        <button class="tab-btn" onclick="switchAdminTab('reports', this)">Reports</button>
+    </div>
+
+    <!-- Approval Queue -->
+    <div id="admin-tab-queue" class="admin-tab-content">
+        <div class="custom-table">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Owner Details</th>
+                        <th>Type & Price</th>
+                        <th>Submitted</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-queue"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- All Properties -->
+    <div id="admin-tab-all-properties" class="admin-tab-content d-none">
+        <div class="custom-table">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                        <th>Views</th>
+                        <th>Inquiries</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-all-properties"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Users -->
+    <div id="admin-tab-users" class="admin-tab-content d-none">
+        <div class="custom-table">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Activity</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-users-list"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reports -->
+    <div id="admin-tab-reports" class="admin-tab-content d-none">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">Platform Growth</h5>
+                    <div class="d-flex align-items-end gap-2" style="height: 200px;">
+                        <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 40%"></div>
+                        <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 55%"></div>
+                        <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 45%"></div>
+                        <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 70%"></div>
+                        <div class="flex-fill bg-warning bg-opacity-25 rounded-top" style="height: 60%"></div>
+                        <div class="flex-fill bg-warning rounded-top" style="height: 85%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2 text-muted small">
+                        <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">Property Categories</h5>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1"><span>Boys Hostel</span><span class="fw-bold">45%</span></div>
+                        <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 45%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1"><span>Girls Hostel</span><span class="fw-bold">35%</span></div>
+                        <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 35%"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1"><span>PG/Rooms</span><span class="fw-bold">20%</span></div>
+                        <div class="progress" style="height: 8px;"><div class="progress-bar bg-warning" style="width: 20%"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">Inquiry Status Distribution</h5>
+                    <div class="row text-center g-3">
+                        <div class="col-4">
+                            <div class="display-6 fw-bold text-warning" id="report-pending">0</div>
+                            <div class="small text-muted">Pending</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="display-6 fw-bold text-success" id="report-responded">0</div>
+                            <div class="small text-muted">Responded</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="display-6 fw-bold text-secondary" id="report-closed">0</div>
+                            <div class="small text-muted">Closed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h5 class="fw-bold mb-3">Top Performing Properties</h5>
+                    <div id="top-properties-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/shared.js"></script>
+<script>
+    // ---- Auth Check ----
+    if (!Auth.require('admin', 'index.html')) throw new Error('Auth required');
+    const user = DB.currentUser;
+    Auth.initNav();
+    UI.initTheme();
+
+    // ---- Stats ----
+    function renderStats() {
+        document.getElementById('admin-pending').innerText = DB.properties.filter(p => !p.verified).length;
+        document.getElementById('admin-verified').innerText = DB.properties.filter(p => p.verified).length;
+        document.getElementById('admin-total-users').innerText = DB.users.length;
+        document.getElementById('admin-total-inquiries').innerText = DB.inquiries.length;
+    }
+
+    // ---- Approval Queue ----
+    function renderQueue() {
+        const container = document.getElementById('admin-queue');
+        const pending = DB.properties.filter(p => !p.verified);
+
+        if (pending.length === 0) {
+            container.innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">No pending requests. All caught up!</td></tr>';
+            return;
+        }
+
+        container.innerHTML = pending.map(p => {
+            const owner = DB.users.find(u => u.id === p.ownerId);
+            return `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${p.img}" class="rounded-3" width="60" height="60" style="object-fit:cover;">
+                            <div>
+                                <div class="fw-bold">${p.name}</div>
+                                <div class="small text-muted">${p.location}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-bold">${owner ? owner.name : 'Unknown'}</div>
+                        <div class="small text-muted">${owner ? owner.phone : ''}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border text-uppercase">${p.type}</span>
+                        <div class="small text-muted mt-1">${UI.formatPrice(p.price)}/mo</div>
+                    </td>
+                    <td><div class="small text-muted">${UI.formatDate(p.date)}</div></td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-success px-3 me-2" onclick="approveProperty(${p.id})"><i class="bi bi-check-lg me-1"></i>Approve</button>
+                        <button class="btn btn-sm btn-outline-danger px-3" onclick="rejectProperty(${p.id})"><i class="bi bi-x-lg me-1"></i>Reject</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ---- All Properties ----
+    function renderAllProperties() {
+        const container = document.getElementById('admin-all-properties');
+        container.innerHTML = DB.properties.map(p => {
+            const owner = DB.users.find(u => u.id === p.ownerId);
+            return `
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${p.img}" class="rounded-3" width="50" height="50" style="object-fit:cover;">
+                            <div>
+                                <div class="fw-bold">${p.name}</div>
+                                <div class="small text-muted">${p.location}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${owner ? owner.name : 'Unknown'}</td>
+                    <td><span class="badge ${p.verified ? 'bg-success' : 'bg-warning text-dark'}">${p.verified ? 'Verified' : 'Pending'}</span></td>
+                    <td>${p.views}</td>
+                    <td>${DB.inquiries.filter(i => i.propertyId === p.id).length}</td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProperty(${p.id})"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // ---- Users ----
+    function renderUsers() {
+        const container = document.getElementById('admin-users-list');
+        container.innerHTML = DB.users.map(u => `
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="user-avatar" style="width:40px;height:40px;">${u.avatar || u.name.charAt(0)}</div>
+                        <div>
+                            <div class="fw-bold">${u.name}</div>
+                            <div class="small text-muted">${u.email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge bg-light text-dark border text-capitalize">${u.role}</span></td>
+                <td><div class="small text-muted">${UI.formatDate(u.joined)}</div></td>
+                <td><div class="small text-muted">${u.role === 'owner' ? DB.properties.filter(p => p.ownerId === u.id).length + ' listings' : u.role === 'student' ? DB.inquiries.filter(i => i.studentId === u.id).length + ' inquiries' : 'Admin'}</div></td>
+                <td class="text-end">
+                    <span class="badge ${u.active ? 'bg-success' : 'bg-secondary'}">${u.active ? 'Active' : 'Inactive'}</span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ---- Reports ----
+    function renderReports() {
+        const inquiries = DB.inquiries;
+        document.getElementById('report-pending').innerText = inquiries.filter(i => i.status === 'new').length;
+        document.getElementById('report-responded').innerText = inquiries.filter(i => i.status === 'responded').length;
+        document.getElementById('report-closed').innerText = inquiries.filter(i => i.status === 'closed').length;
+
+        const topProps = [...DB.properties].sort((a, b) => b.views - a.views).slice(0, 5);
+        document.getElementById('top-properties-list').innerHTML = topProps.map((p, i) => `
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px;">${i + 1}</div>
+                <div class="flex-fill">
+                    <div class="fw-bold">${p.name}</div>
+                    <div class="small text-muted">${p.views} views | ${DB.inquiries.filter(iq => iq.propertyId === p.id).length} inquiries</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ---- Actions ----
+    function approveProperty(id) {
+        DB.updateProperty(id, { verified: true });
+        UI.showToast('Property approved and is now live!', 'success');
+        renderAll();
+    }
+
+    function rejectProperty(id) {
+        if (!confirm('Reject and delete this property?')) return;
+        DB.deleteProperty(id);
+        UI.showToast('Property rejected and removed', 'info');
+        renderAll();
+    }
+
+    function deleteProperty(id) {
+        if (!confirm('Are you sure you want to delete this property?')) return;
+        DB.deleteProperty(id);
+        UI.showToast('Property deleted', 'info');
+        renderAll();
+    }
+
+    function resetPlatform() {
+        if (!confirm('WARNING: This will reset ALL data to defaults. Continue?')) return;
+        DB.reset();
+        UI.showToast('Platform reset. Reloading...', 'warning');
+        setTimeout(() => location.reload(), 1000);
+    }
+
+    function switchAdminTab(tab, btn) {
+        UI.switchTab('admin-tab-content', 'admin-tab-' + tab, btn);
+    }
+
+    function renderAll() {
+        renderStats();
+        renderQueue();
+        renderAllProperties();
+        renderUsers();
+        renderReports();
+    }
+
+    function logout() {
+        Auth.logout();
+        window.location.href = 'index.html';
+    }
+
+    // ---- Init ----
+    renderAll();
+</script>
+</body>
+</html>
